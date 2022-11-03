@@ -19,38 +19,18 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public GameObject quizPanel;
-    [SerializeField] GameObject resultPanel;
-    bool isGameOver;
+    bool isGameOver = false, isSelecting, isShowing;
     public bool IsGameOver
     {
         get { return isGameOver; }
-        set
-        { 
-            isGameOver = value;
-            if (isGameOver)
-            {
-                // PanelOnOff(false);
-            }
-        }
+        set { isGameOver = value; }
     }
-
-    private void Start()
+    public bool IsSelecting { get { return isSelecting; } }
+    public bool IsShowing { get { return isShowing; } }
+    public void SetSelectingState(bool _isSelecting)
     {
-        // PanelOnOff(true);
-        Reload();
-    }
-
-
-    public void PanelOnOff(bool quizPanelOn)
-    {
-        quizPanel.SetActive(quizPanelOn);
-        resultPanel.SetActive(!quizPanelOn);
-    }
-
-    public void Reload()
-    {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-        // PanelOnOff(true);
+        isSelecting = _isSelecting;
+        isShowing = !_isSelecting;
+        Debug.Log("게임 매니저 isSelecting : " + isSelecting + " isShowing : " + isShowing);
     }
 }

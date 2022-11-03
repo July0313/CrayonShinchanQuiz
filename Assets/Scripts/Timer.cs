@@ -4,52 +4,41 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class Timer : MonoBehaviour
-{
-    Image timer;
+{ 
+    Image timerFillImg;
 
-    float timeToSelectAnswer = 10f;
-    float timeToShowAnswer = 5f;
-    float curTime = 0f;
+    [Header("문제풀이 시간")]
+    [SerializeField] float selectAnswerTime = 10f;
+    [SerializeField] float showAnswerTime = 5f;
 
-    bool isSelecting;
+    float curTime, divisorTime;
+    bool isSelecting = true;
 
     void Start()
     {
-        timer = GetComponent<Image>();
-        TimerInit();
+        timerFillImg = GetComponentInChildren<Image>();
+
+        SetTimer(true);
     }
 
     void Update()
     {
-        TimeSpend();
+        curTime -= Time.deltaTime;
+        timerFillImg.fillAmount = curTime / divisorTime;
+
+        if (curTime <= 0)
+        {
+            SetTimer(!isSelecting);
+        }
     }
 
-    void TimerInit()
+    void SetTimer(bool _isSelecting)
     {
-        isSelecting = true;
-        curTime = timeToSelectAnswer;
-    }
+        isSelecting = _isSelecting;
+        GameManager.instance.SetSelectingState(isSelecting);
 
-    void TimeSpend()
-    {
-        if (curTime > 0)
-        {
-            curTime -= Time.deltaTime;
-            if (isSelecting)
-            {
-                timer.color = Color.red;
-                timer.fillAmount = (float)curTime / (float)timeToSelectAnswer;
-            }
-            else
-            {
-                timer.color = Color.cyan;
-                timer.fillAmount = (float)curTime / (float)timeToShowAnswer;
-            }
-        }
-        else
-        {
-            isSelecting = !isSelecting;
-            curTime = isSelecting ? timeToSelectAnswer : timeToShowAnswer;
-        }
+        timerFillImg.color = isSelecting ? Color.green : Color.gray;
+        divisorTime = isSelecting ? selectAnswerTime : showAnswerTime;
+        curTime = divisorTime;
     }
 }
