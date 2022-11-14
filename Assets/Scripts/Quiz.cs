@@ -9,7 +9,8 @@ public class Quiz : MonoBehaviour
     [Header("Question")]
     [SerializeField] TextMeshProUGUI questionText;
     [SerializeField] List<QuestionSO> questions;
-    [SerializeField] QuestionSO currentQuestion;
+    QuestionSO currentQuestion;
+    string correctString;
 
     [Header("Answer Button")]
     [SerializeField] Button[] answerBtns;
@@ -29,20 +30,18 @@ public class Quiz : MonoBehaviour
     void GetRandomQuestion()
     {
         Debug.Log("1. GetRandomQuestion()");
-        int index = Random.Range(0, questions.Count);
-        currentQuestion = questions[index];
-        questions.RemoveAt(index);
+        int idx = Random.Range(0, questions.Count);
+        currentQuestion = questions[idx];
+        questions.RemoveAt(idx);
     }
 
     void SetQuestionText(string text)
     {
-        Debug.Log("2. SetQuestionText()");
         questionText.text = text;
     }
 
     void SetButtonText()
     {
-        Debug.Log("3. SetButtonText()");
         for (int i = 0; i < answerBtns.Length; i++)
         {
             answerBtnTexts[i].text = currentQuestion.GetAnswer(i);
@@ -57,10 +56,10 @@ public class Quiz : MonoBehaviour
         }
     }
 
-    void SetButtonColor(int index, Color color)
+    void SetButtonColor(int idx, Color color)
     {
         Debug.Log("버튼 컬러 바꾸기" + color);
-        answerBtns[index].GetComponent<Image>().color = color;
+        answerBtns[idx].GetComponent<Image>().color = color;
     }
 
     void SetButtonDefault()
@@ -69,6 +68,7 @@ public class Quiz : MonoBehaviour
         {
             SetButtonColor(i, Color.white);
         }
+        SetButtonText();
         SetButtonState(true);
     }
 
@@ -77,12 +77,27 @@ public class Quiz : MonoBehaviour
     {
         GetRandomQuestion();
         SetQuestionText(currentQuestion.Question);
-        SetButtonText();
-
         SetButtonDefault();
     }
 
-    public void OnSelectedButton(int index)
+    void AfterButtonSelected(int idx)
+    {
+        SetButtonState(false);
+        SetButtonColor(currentQuestion.CorrectAnswerIdx, Color.green);
+
+        if (currentQuestion.CorrectAnswerIdx != idx)
+        {
+            correctString = currentQuestion.GetAnswer(currentQuestion.CorrectAnswerIdx);
+            SetQuestionText("The Answer is \n" + correctString);
+            SetButtonColor(idx, Color.red);
+        }
+        else
+        {
+            SetQuestionText("Correct!");
+        }
+    }
+
+    public void OnButtonSelected(int idx)
     {
         if (questions.Count == 0)
         {
@@ -91,18 +106,14 @@ public class Quiz : MonoBehaviour
             return;
         }
 
-        SetButtonState(false);
-        if (currentQuestion.CorrectAnswerIndex != index)
-        {
-            SetQuestionText("The Answer is \n" + currentQuestion.GetAnswer(currentQuestion.CorrectAnswerIndex));
-            SetButtonColor(index, Color.red);
-        }
-        else
-        {
-            SetQuestionText("Correct!");
-        }
-        SetButtonColor(currentQuestion.CorrectAnswerIndex, Color.green);
+        AfterButtonSelected(idx);
 
+        if (GameManager.instance.IsSelecting)
+        {
+            
+        }
+
+        // 다음 문제 출력
         DisplayQuestion();
     }
 }
