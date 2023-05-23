@@ -16,6 +16,11 @@ public class Quiz : MonoBehaviour
     [SerializeField] Button[] answerBtns;
     TextMeshProUGUI[] answerBtnTexts = new TextMeshProUGUI[4];
 
+    [Header("Button Color")]
+    [SerializeField] Color defaultColor;
+    [SerializeField] Color correctColor;
+    [SerializeField] Color incorrectColor;
+
     void Awake()
     {
         for (int i = 0; i < answerBtns.Length; i++)
@@ -66,7 +71,7 @@ public class Quiz : MonoBehaviour
     {
         for (int i = 0; i < answerBtns.Length; i++)
         {
-            SetButtonColor(i, Color.white);
+            SetButtonColor(i, defaultColor);
         }
         SetButtonText();
         SetButtonState(true);
@@ -78,43 +83,57 @@ public class Quiz : MonoBehaviour
         GetRandomQuestion();
         SetQuestionText(currentQuestion.Question);
         SetButtonDefault();
+
+        // 장애물에 닿기 전까지 Off
+        gameObject.SetActive(false);
     }
 
+    // 버튼을 클릭하지 않았을 때는 idx = -1로 진입
     void AfterButtonSelected(int idx)
     {
         SetButtonState(false);
-        SetButtonColor(currentQuestion.CorrectAnswerIdx, Color.green);
+        SetButtonColor(currentQuestion.CorrectAnswerIdx, correctColor);
 
         if (currentQuestion.CorrectAnswerIdx != idx)
         {
             correctString = currentQuestion.GetAnswer(currentQuestion.CorrectAnswerIdx);
-            SetQuestionText("The Answer is \n" + correctString);
-            SetButtonColor(idx, Color.red);
+            SetQuestionText("틀렸어요! 정답은 " + correctString);
+
+            if (idx != -1)  // 버튼을 누르지 않은 게 아닐 때
+            {
+                SetButtonColor(idx, incorrectColor);
+            }
         }
         else
         {
-            SetQuestionText("Correct!");
+            SetQuestionText("정답입니다!");
         }
     }
 
+    // 버튼을 클릭하지 않았을 때는 idx = -1로 진입
     public void OnButtonSelected(int idx)
     {
+        StartCoroutine(ButtonSelectedCoroutine(idx));
+    }
+
+    WaitForSeconds waitSec = new WaitForSeconds(2f);
+    IEnumerator ButtonSelectedCoroutine(int idx)
+    {
+        AfterButtonSelected(idx);
+
+        yield return waitSec;
+
         if (questions.Count == 0)
         {
             Debug.Log("questsion 끝남");
             GameManager.instance.IsGameOver = true;
-            return;
+            yield break;
         }
-
-        AfterButtonSelected(idx);
-
-        if (GameManager.instance.IsSelecting)
+        else
         {
-            
+            // 다음 문제 출력
+            DisplayQuestion();
         }
-
-        // 다음 문제 출력
-        DisplayQuestion();
     }
 }
 

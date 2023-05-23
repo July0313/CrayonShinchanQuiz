@@ -19,6 +19,35 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    [SerializeField]
+    int coin = 0;
+    public int Coin
+    {
+        get { return coin; }
+        set
+        {
+            coin = value;
+            UIManager.instance.SetCoinText(coin);
+        }
+    }
+
+    [SerializeField]
+    int hp = 100;
+    public int HP
+    {
+        get { return hp; }
+        set
+        {
+            if (value <= 0)
+            {
+                // 체력이 모두 소진되었으므로 게임 종료
+            }
+
+            hp = value;
+            UIManager.instance.SetHpBar(hp);
+        }
+    }
+
     bool isGameOver = false, isSelecting, isShowing;
     public bool IsGameOver
     {
